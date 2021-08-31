@@ -9,11 +9,13 @@ import (
 )
 
 var (
-	verbose bool = false
+	verbose bool
+	tpl     string
 )
 
 func main() {
 	flag.BoolVar(&verbose, "v", false, "Show verbose log")
+	flag.StringVar(&tpl, "tpl", "", "Output template ('' = default, 'json')")
 	flag.Parse()
 	identity := flag.Arg(0)
 	c := &ghdeps.Crawler{
@@ -24,7 +26,12 @@ func main() {
 	if err := c.All(); err != nil {
 		log.Fatalln(err)
 	}
-	if err := c.Print(os.Stdout, nil); err != nil {
+	opt := new(ghdeps.PrintOption)
+	switch tpl {
+	case "json":
+		opt.Template = ghdeps.JSONTemplate
+	}
+	if err := c.Print(os.Stdout, opt); err != nil {
 		log.Fatalln(err)
 	}
 }
