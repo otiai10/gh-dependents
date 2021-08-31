@@ -5,6 +5,8 @@
 
 `gh` command extension to see dependents of your repository.
 
+![screenshot](https://raw.githubusercontent.com/otiai10/gh-dependents/main/screenshot.png)
+
 See The GitHub Blog: [GitHub CLI 2.0 includes extensions!](https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/)
 
 # Install
@@ -19,8 +21,6 @@ gh extension install otiai10/gh-dependents
 gh dependents otiai10/lookpath
 # gh dependents {user}/{repo}
 ```
-
-![screenshot](https://raw.githubusercontent.com/otiai10/gh-dependents/main/screenshot.png)
 
 # Advanced Usage
 
