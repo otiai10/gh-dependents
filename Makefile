@@ -25,5 +25,5 @@ bin/ghdeps-windows-i386:
 bin/ghdeps-windows-x86_64:
 	GOOS=windows GOARCH=amd64 go build -o bin/ghdeps-windows-x86_64
 
-# release:
-# 	gh release create ${tag} ./bin/* --title="${tag}" --notes "${tag}"
+release:
+	gh release create ${tag} ./bin/* --title="${tag}" --notes "${tag}"
