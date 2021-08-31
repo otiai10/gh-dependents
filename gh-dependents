@@ -1,0 +1,26 @@
+#!/bin/bash
+
+EXTENSIONDIR=$(dirname ${0})
+
+EXECUTABLE=ghdeps-darwin-x86_64
+ARCH="$(uname -m)"
+
+if uname -a | grep Msys > /dev/null; then
+  case "${ARCH}" in
+    x86_64) EXECUTABLE="ghdeps-windows-x86_64" ;;
+    i686)   EXECUTABLE="ghdeps-windows-i386"   ;;
+    i386)   EXECUTABLE="ghdeps-windows-i386"   ;;
+  esac
+elif uname -a | grep Darwin > /dev/null; then
+  case "${ARCH}" in
+    x86_64) EXECUTABLE="ghdeps-darwin-x86_64"  ;;
+  esac
+elif uname -a | grep Linux > /dev/null; then
+  case "${ARCH}" in
+    x86_64) EXECUTABLE="ghdeps-linux-x86_64"   ;;
+    i686)   EXECUTABLE="ghdeps-linux-i386"     ;;
+    i386)   EXECUTABLE="ghdeps-linux-i386"     ;;
+  esac
+fi
+
+exec "${EXTENSIONDIR}/bin/${EXECUTABLE}" "$@"
