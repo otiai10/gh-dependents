@@ -1,5 +1,8 @@
 # gh-dependents
 
+[![Actions Status](https://github.com/otiai10/gh-dependents/workflows/Go/badge.svg)](https://github.com/otiai10/gh-dependents/actions)
+[![codecov](https://codecov.io/gh/otiai10/gh-dependents/branch/main/graph/badge.svg)](https://codecov.io/gh/otiai10/gh-dependents)
+
 `gh` command extension to see dependents of your repository.
 
 # Install
