@@ -2,6 +2,7 @@ package ghdeps
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -48,4 +49,21 @@ func TestCrawler_All(t *testing.T) {
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(1)
 	Expect(t, len(c.Dependents)).ToBe(4)
+}
+
+func TestJSONTemplate(t *testing.T) {
+	c := &Crawler{
+		ServiceURL: "http://localhost:8080",
+		Source:     Repository{User: "otiai10", Repo: "gh-dependents"},
+		Pages:      []string{},
+		Dependents: []Repository{
+			{User: "foo", Repo: "baa"},
+		},
+	}
+	buf := bytes.NewBuffer(nil)
+	err := c.Print(buf, &PrintOption{Template: JSONTemplate})
+	Expect(t, err).ToBe(nil)
+	out := map[string]interface{}{}
+	err = json.NewDecoder(buf).Decode(&out)
+	Expect(t, err).ToBe(nil)
 }

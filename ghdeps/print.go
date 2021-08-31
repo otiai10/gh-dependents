@@ -23,7 +23,7 @@ PAGES:	{{len .Pages}}
     "source": {
         "user": "{{.Source.User}}",
         "repo": "{{.Source.Repo}}",
-        "url": "{{.Source.URL .ServiceURL}}",
+        "url": "{{.Source.URL .ServiceURL}}"
     },
     "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
         "{{$p}}"{{end}}
