@@ -7,7 +7,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -101,19 +100,13 @@ func (c *Crawler) Walk(node *html.Node) (string, error) {
 				box := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling
 				// assume 1st child of the box is header
 				for row := box.FirstChild.NextSibling.NextSibling.NextSibling; row != nil; row = row.NextSibling {
-					// {{{ TODO: Separate construction of "Repo" to repository.go
 					if row.Type != html.ElementNode || row.Data != "div" {
 						continue
 					}
-					a := row.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling
-					repo := CreateRepository(getAttribute(a, "href"))
-					stars := row.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
-					numstars, err := strconv.Atoi(noiseOfStars.ReplaceAllString(stars.Data, ""))
+					repo, err := CreateRepositoryFromRowNode(row)
 					if err != nil {
-						numstars = 0 // TODO: Does GitHub use like "1M" for "1,000,000"?
+						return "", err
 					}
-					repo.Stars = numstars
-					// }}}
 					c.Dependents = append(c.Dependents, repo)
 				}
 				page := box.NextSibling.NextSibling.FirstChild.NextSibling
