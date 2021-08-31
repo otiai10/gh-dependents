@@ -25,15 +25,15 @@ PAGES:	{{len .Pages}}
         "repo": "{{.Source.Repo}}",
         "url": "{{.Source.URL .ServiceURL}}"
     },
-    "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
-        "{{$p}}"{{end}}
-    ],
     "dependents": [{{range $i, $d := .Dependents}}{{if $i}},{{end}}
         {
             "user": "{{$d.User}}",
             "repo": "{{$d.Repo}}",
             "url": "{{$d.URL $.ServiceURL}}"
         }{{end}}
+    ],
+    "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
+        "{{$p}}"{{end}}
     ]
 }`,
 	))
