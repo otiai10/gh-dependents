@@ -20,6 +20,8 @@ gh dependents otiai10/lookpath
 # gh dependents {user}/{repo}
 ```
 
+![screenshot](https://raw.githubusercontent.com/otiai10/gh-dependents/main/screenshot.png)
+
 # Advanced Usage
 
 ```sh
