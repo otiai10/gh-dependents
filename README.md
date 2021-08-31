@@ -5,6 +5,8 @@
 
 `gh` command extension to see dependents of your repository.
 
+See The GitHub Blog: [GitHub CLI 2.0 includes extensions!](https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/)
+
 # Install
 
 ```sh
