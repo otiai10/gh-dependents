@@ -9,13 +9,17 @@ import (
 )
 
 var (
-	verbose bool
-	tpl     string
+	verbose  bool
+	tpl      string
+	sortstar bool
+	page     int
 )
 
 func main() {
 	flag.BoolVar(&verbose, "v", false, "Show verbose log")
 	flag.StringVar(&tpl, "tpl", "", "Output template ('' = default, 'json')")
+	flag.BoolVar(&sortstar, "s", false, "Output with sorting by num of stars")
+	flag.IntVar(&page, "p", 0, "Pages to crawl (0 == all)")
 	flag.Parse()
 	identity := flag.Arg(0)
 	c := &ghdeps.Crawler{
@@ -23,10 +27,10 @@ func main() {
 		Source:     ghdeps.CreateRepository(identity),
 		Verbose:    verbose,
 	}
-	if err := c.All(); err != nil {
+	if err := c.Crawl(page); err != nil {
 		log.Fatalln(err)
 	}
-	opt := new(ghdeps.PrintOption)
+	opt := &ghdeps.PrintOption{SortByStar: sortstar}
 	switch tpl {
 	case "json":
 		opt.Template = ghdeps.JSONTemplate

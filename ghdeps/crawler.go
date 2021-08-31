@@ -43,14 +43,16 @@ func (deps Dependents) Swap(i, j int) {
 	deps[i], deps[j] = deps[j], deps[i]
 }
 
-func (c *Crawler) All() (err error) {
+func (c *Crawler) Crawl(page int) (err error) {
 	link := c.Source.URL(c.ServiceURL) + "/network/dependents"
 	for link != "" {
 		if link, err = c.Page(link); err != nil {
 			return err
 		}
+		if page != 0 && len(c.Pages) >= page {
+			return nil
+		}
 	}
-	sort.Sort(c.Dependents)
 	return nil
 }
 
@@ -137,6 +139,9 @@ func (c *Crawler) Walk(node *html.Node) (string, error) {
 
 func (c *Crawler) Print(out io.Writer, opt *PrintOption) error {
 	opt = opt.ensure()
+	if opt.SortByStar {
+		sort.Sort(c.Dependents)
+	}
 	return opt.Template.Execute(out, c)
 }
 

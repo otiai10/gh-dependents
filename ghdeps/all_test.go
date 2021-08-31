@@ -45,7 +45,7 @@ func TestCrawler_All(t *testing.T) {
 	server := httptest.NewServer(mux)
 	source := CreateRepository("foo/baa")
 	c := &Crawler{ServiceURL: server.URL, Source: source}
-	err := c.All()
+	err := c.Crawl(0)
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(1)
 	Expect(t, len(c.Dependents)).ToBe(4)
@@ -61,7 +61,7 @@ func TestJSONTemplate(t *testing.T) {
 		},
 	}
 	buf := bytes.NewBuffer(nil)
-	err := c.Print(buf, &PrintOption{Template: JSONTemplate})
+	err := c.Print(buf, &PrintOption{Template: JSONTemplate, SortByStar: true})
 	Expect(t, err).ToBe(nil)
 	out := map[string]interface{}{}
 	err = json.NewDecoder(buf).Decode(&out)

@@ -4,7 +4,8 @@ import "html/template"
 
 type (
 	PrintOption struct {
-		Template *template.Template
+		Template   *template.Template
+		SortByStar bool
 	}
 )
 
