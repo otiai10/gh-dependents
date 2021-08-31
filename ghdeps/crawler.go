@@ -7,7 +7,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -94,37 +93,22 @@ func (c *Crawler) page(r io.Reader) (string, error) {
 	return "", nil
 }
 
+// Walk walkthrough all DOM element on the page recursively.
+// See `query.go` for how we find the target nodes from DOM structure.
 func (c *Crawler) Walk(node *html.Node) (string, error) {
-	if node.Type == html.ElementNode {
-		if node.Data == "div" {
-			if getAttribute(node, "id") == "dependents" {
-				// assume 4th child is the box
-				box := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling
-				// assume 1st child of the box is header
-				for row := box.FirstChild.NextSibling.NextSibling.NextSibling; row != nil; row = row.NextSibling {
-					if row.Type != html.ElementNode || row.Data != "div" {
-						continue
-					}
-					repo, err := CreateRepositoryFromRowNode(row)
-					if err != nil {
-						return "", err
-					}
-					c.Dependents = append(c.Dependents, repo)
-				}
-				page := box.NextSibling.NextSibling.FirstChild.NextSibling
-				for btn := page.FirstChild; btn != nil; btn = btn.NextSibling {
-					if btn.Type == html.ElementNode && btn.Data == "a" {
-						href := getAttribute(btn, "href")
-						if strings.Contains(href, "dependents_after") {
-							return href, nil
-						}
-					}
-				}
-				return "", nil
+	if box := queryBox(node); box != nil {
+		for row := queryNextRow(box.FirstChild); row != nil; row = queryNextRow(row.NextSibling) {
+			repo, err := CreateRepositoryFromRowNode(row)
+			if err != nil {
+				return "", err
 			}
+			c.Dependents = append(c.Dependents, repo)
 		}
+		if btn := queryNextPageButton(box); btn != nil {
+			return getAttribute(btn, "href"), nil
+		}
+		return "", nil
 	}
-
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
 		next, err := c.Walk(child)
 		if err != nil {
@@ -143,16 +127,4 @@ func (c *Crawler) Print(out io.Writer, opt *PrintOption) error {
 		sort.Sort(c.Dependents)
 	}
 	return opt.Template.Execute(out, c)
-}
-
-func getAttribute(node *html.Node, name string) string {
-	if node == nil || node.Attr == nil {
-		return ""
-	}
-	for _, attr := range node.Attr {
-		if attr.Key == name {
-			return attr.Val
-		}
-	}
-	return ""
 }
