@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sort"
 	"testing"
 
 	. "github.com/otiai10/mint"
@@ -49,6 +50,24 @@ func TestCrawler_All(t *testing.T) {
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(1)
 	Expect(t, len(c.Dependents)).ToBe(4)
+}
+
+func TestDependents_Sort(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo/baa/network/dependents", func(w http.ResponseWriter, req *http.Request) {
+		f, _ := os.Open("./testdata/sortable.html")
+		io.Copy(w, f)
+	})
+	server := httptest.NewServer(mux)
+	source := CreateRepository("foo/baa")
+	c := &Crawler{ServiceURL: server.URL, Source: source, Verbose: true, SleepIntervalPages: 1}
+	err := c.Crawl(2)
+	Expect(t, err).ToBe(nil)
+	Expect(t, len(c.Pages)).ToBe(2)
+	Expect(t, len(c.Dependents)).Not().ToBe(30)
+	Expect(t, c.Dependents[0].Stars).ToBe(0)
+	sort.Sort(c.Dependents)
+	Expect(t, c.Dependents[0].Stars).ToBe(421)
 }
 
 func TestJSONTemplate(t *testing.T) {

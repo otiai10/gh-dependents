@@ -3,15 +3,20 @@ package ghdeps
 import (
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
 	"sort"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
-const GitHubBaseURL = "https://github.com"
+const (
+	GitHubBaseURL             = "https://github.com"
+	defaultSleepIntervalPages = 12
+)
 
 type (
 	Crawler struct {
@@ -21,7 +26,8 @@ type (
 		Pages      []string
 
 		// Configs
-		Verbose bool
+		Verbose            bool
+		SleepIntervalPages int
 	}
 	Dependents []Repository
 )
@@ -43,6 +49,9 @@ func (deps Dependents) Swap(i, j int) {
 }
 
 func (c *Crawler) Crawl(page int) (err error) {
+	if c.SleepIntervalPages == 0 {
+		c.SleepIntervalPages = defaultSleepIntervalPages
+	}
 	link := c.Source.URL(c.ServiceURL) + "/network/dependents"
 	for link != "" {
 		if link, err = c.Page(link); err != nil {
@@ -50,6 +59,14 @@ func (c *Crawler) Crawl(page int) (err error) {
 		}
 		if page != 0 && len(c.Pages) >= page {
 			return nil
+		}
+		if len(c.Pages)%c.SleepIntervalPages == 0 {
+			rand.Seed(time.Now().Unix())
+			secs := rand.Intn(20)
+			if c.Verbose {
+				fmt.Fprintf(os.Stderr, "Sleeping %d seconds to avoid HTTP 429.\n", secs)
+			}
+			time.Sleep(time.Duration(secs) * time.Second)
 		}
 	}
 	return nil
