@@ -17,7 +17,7 @@ var (
 
 func main() {
 	flag.BoolVar(&verbose, "v", false, "Show verbose log")
-	flag.StringVar(&tpl, "tpl", "", "Output template ('' = default, 'json')")
+	flag.StringVar(&tpl, "t", "", "Output template ('' = default, 'json')")
 	flag.BoolVar(&sortstar, "s", false, "Output with sorting by num of stars")
 	flag.IntVar(&page, "p", 0, "Pages to crawl (0 == all)")
 	flag.Parse()

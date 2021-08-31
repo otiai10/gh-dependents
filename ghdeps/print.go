@@ -11,11 +11,11 @@ type (
 
 var (
 	DefaultTemplate = template.Must(template.New("default").Parse(
-		`Dependents of {{.Source.User}}/{{.Source.Repo}}
-----------------------------
+		`--------------------------------------
+Dependents of {{.Source.User}}/{{.Source.Repo}}
 TOTAL:	{{len .Dependents}}
 PAGES:	{{len .Pages}}
-----------------------------
+--------------------------------------
 {{range .Dependents}}⭐️{{.Stars}}	{{.User}}/{{.Repo}}
 {{end}}`,
 	))

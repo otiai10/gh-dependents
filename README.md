@@ -23,9 +23,9 @@ gh dependents otiai10/lookpath
 # Advanced Usage
 
 ```sh
-gh dependents -v -tpl=json otiai10/lookpath
+gh dependents -v -t=json otiai10/lookpath
 # -v to show verbose log
-# -tpl=json to output in JSON format
+# -t=json to output in JSON format template
 ```
 
 # How it works
