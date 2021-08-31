@@ -48,6 +48,17 @@ func (deps Dependents) Swap(i, j int) {
 	deps[i], deps[j] = deps[j], deps[i]
 }
 
+func NewCrawler(identity string) *Crawler {
+	return &Crawler{
+		ServiceURL: GitHubBaseURL,
+		Source:     CreateRepository(identity),
+	}
+}
+
+func (c *Crawler) All() error {
+	return c.Crawl(0)
+}
+
 func (c *Crawler) Crawl(page int) (err error) {
 	if c.SleepIntervalPages == 0 {
 		c.SleepIntervalPages = defaultSleepIntervalPages

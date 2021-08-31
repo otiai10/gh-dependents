@@ -44,9 +44,9 @@ func TestCrawler_All(t *testing.T) {
 		io.Copy(w, f)
 	})
 	server := httptest.NewServer(mux)
-	source := CreateRepository("foo/baa")
-	c := &Crawler{ServiceURL: server.URL, Source: source}
-	err := c.Crawl(0)
+	c := NewCrawler("foo/baa")
+	c.ServiceURL = server.URL
+	err := c.All()
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(1)
 	Expect(t, len(c.Dependents)).ToBe(4)
