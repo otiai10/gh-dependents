@@ -20,6 +20,18 @@ gh dependents otiai10/lookpath
 # gh dependents {user}/{repo}
 ```
 
+# Advanced Usage
+
+```sh
+gh dependents -v -tpl=json otiai10/lookpath
+# -v to show verbose log
+# -tpl=json to output in JSON format
+```
+
 # How it works
 
 - This command just crawls `/network/dependents` page of your repository.
+
+# Issues and Feature Request
+
+- https://github.com/otiai10/gh-dependents/issues
