@@ -5,6 +5,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -25,6 +28,22 @@ type (
 	Dependents []Repository
 )
 
+var (
+	noiseOfStars = regexp.MustCompile("[ \\n,]")
+)
+
+func (deps Dependents) Len() int {
+	return len(deps)
+}
+
+func (deps Dependents) Less(i, j int) bool {
+	return deps[i].Stars > deps[j].Stars
+}
+
+func (deps Dependents) Swap(i, j int) {
+	deps[i], deps[j] = deps[j], deps[i]
+}
+
 func (c *Crawler) All() (err error) {
 	link := c.Source.URL(c.ServiceURL) + "/network/dependents"
 	for link != "" {
@@ -32,6 +51,7 @@ func (c *Crawler) All() (err error) {
 			return err
 		}
 	}
+	sort.Sort(c.Dependents)
 	return nil
 }
 
@@ -81,12 +101,20 @@ func (c *Crawler) Walk(node *html.Node) (string, error) {
 				box := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling
 				// assume 1st child of the box is header
 				for row := box.FirstChild.NextSibling.NextSibling.NextSibling; row != nil; row = row.NextSibling {
+					// {{{ TODO: Separate construction of "Repo" to repository.go
 					if row.Type != html.ElementNode || row.Data != "div" {
 						continue
 					}
 					a := row.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling
-					href := getAttribute(a, "href")
-					c.Dependents = append(c.Dependents, CreateRepository(href))
+					repo := CreateRepository(getAttribute(a, "href"))
+					stars := row.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+					numstars, err := strconv.Atoi(noiseOfStars.ReplaceAllString(stars.Data, ""))
+					if err != nil {
+						numstars = 0 // TODO: Does GitHub use like "1M" for "1,000,000"?
+					}
+					repo.Stars = numstars
+					// }}}
+					c.Dependents = append(c.Dependents, repo)
 				}
 				page := box.NextSibling.NextSibling.FirstChild.NextSibling
 				for btn := page.FirstChild; btn != nil; btn = btn.NextSibling {

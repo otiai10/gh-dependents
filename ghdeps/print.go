@@ -15,9 +15,10 @@ var (
 TOTAL:	{{len .Dependents}}
 PAGES:	{{len .Pages}}
 ----------------------------
-{{range .Dependents}}{{.User}}/{{.Repo}}
+{{range .Dependents}}⭐️{{.Stars}}	{{.User}}/{{.Repo}}
 {{end}}`,
 	))
+
 	JSONTemplate = template.Must(template.New("json").Parse(
 		`{
     "source": {
@@ -29,7 +30,8 @@ PAGES:	{{len .Pages}}
         {
             "user": "{{$d.User}}",
             "repo": "{{$d.Repo}}",
-            "url": "{{$d.URL $.ServiceURL}}"
+            "url": "{{$d.URL $.ServiceURL}}",
+            "stars": {{$d.Stars}}
         }{{end}}
     ],
     "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}

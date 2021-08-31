@@ -8,8 +8,9 @@ import (
 
 type (
 	Repository struct {
-		User string
-		Repo string
+		User  string
+		Repo  string
+		Stars int
 	}
 )
 
