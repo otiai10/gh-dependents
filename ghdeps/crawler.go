@@ -73,7 +73,10 @@ func (c *Crawler) Crawl(page int) (err error) {
 		}
 		if len(c.Pages)%c.SleepIntervalPages == 0 {
 			rand.Seed(time.Now().Unix())
-			secs := rand.Intn(20)
+			secs := rand.Intn(24)
+			if len(c.Pages)%(c.SleepIntervalPages*5) == 0 {
+				secs = secs * 5
+			}
 			if c.Verbose {
 				fmt.Fprintf(os.Stderr, "Sleeping %d seconds to avoid HTTP 429.\n", secs)
 			}

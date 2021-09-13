@@ -67,7 +67,7 @@ func TestDependents_Sort(t *testing.T) {
 	Expect(t, len(c.Dependents)).Not().ToBe(30)
 	Expect(t, c.Dependents[0].Stars).ToBe(0)
 	sort.Sort(c.Dependents)
-	Expect(t, c.Dependents[0].Stars).ToBe(421)
+	Expect(t, c.Dependents[0].Stars).ToBe(425)
 }
 
 func TestJSONTemplate(t *testing.T) {
