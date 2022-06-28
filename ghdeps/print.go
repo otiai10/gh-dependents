@@ -36,7 +36,10 @@ PAGES:	{{len .Pages}}
         }{{end}}
     ],
     "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
-        "{{$p}}"{{end}}
+        {
+            "url":  "{{$p.URL}}"{{if ne (len $p.Next) 0}},
+            "next": "{{$p.Next}}"{{end}}
+        }{{end}}
     ]
 }`,
 	))

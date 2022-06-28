@@ -3,11 +3,15 @@ package ghdeps
 import (
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/net/html"
@@ -23,13 +27,26 @@ type (
 		ServiceURL string
 		Source     Repository
 		Dependents Dependents
-		Pages      []string
+		Pages      []Page
 
 		// Configs
 		Verbose            bool
 		SleepIntervalPages int
 	}
+
 	Dependents []Repository
+
+	Repository struct {
+		User  string
+		Repo  string
+		Stars int
+	}
+
+	Page struct {
+		URL  string
+		Next string
+		// YAGNI: Previous string
+	}
 )
 
 var (
@@ -90,10 +107,9 @@ func (c *Crawler) sleepIfNeeded() {
 	}
 }
 
-func (c *Crawler) Page(link string) (string, error) {
-	c.Pages = append(c.Pages, link)
+func (c *Crawler) Page(link string) (next string, err error) {
 	if c.Verbose {
-		fmt.Fprintf(os.Stderr, "[Page % 2d] %s", len(c.Pages), link)
+		fmt.Fprintf(os.Stderr, "[Page % 2d] %s", len(c.Pages)+1, link)
 	}
 	res, err := http.Get(link)
 	if err != nil {
@@ -103,14 +119,16 @@ func (c *Crawler) Page(link string) (string, error) {
 	if res.StatusCode >= http.StatusBadRequest {
 		return "", fmt.Errorf(res.Status)
 	}
-	next, err := c.page(res.Body)
+	next, err = c.page(res.Body)
 	if c.Verbose {
 		fmt.Fprintf(os.Stderr, "\t= %d\n", len(c.Dependents))
 	}
+	u, _ := url.Parse(next)
+	c.Pages = append(c.Pages, Page{URL: link, Next: u.Query().Get("dependents_after")})
 	return next, err
 }
 
-func (c *Crawler) page(r io.Reader) (string, error) {
+func (c *Crawler) page(r io.Reader) (next string, err error) {
 	node, err := html.Parse(r)
 	if err != nil {
 		return "", err
@@ -118,7 +136,7 @@ func (c *Crawler) page(r io.Reader) (string, error) {
 	if c.Dependents == nil {
 		c.Dependents = Dependents{}
 	}
-	next, err := c.Walk(node)
+	next, err = c.Walk(node)
 	if err != nil {
 		return "", err
 	}
@@ -162,4 +180,28 @@ func (c *Crawler) Print(out io.Writer, opt *PrintOption) error {
 		sort.Sort(c.Dependents)
 	}
 	return opt.Template.Execute(out, c)
+}
+
+func (r Repository) URL(base string) string {
+	return fmt.Sprintf("%s/%s/%s", base, r.User, r.Repo)
+}
+
+func CreateRepository(identifier string) Repository {
+	id := strings.Split(strings.Trim(identifier, "/"), "/")
+	if len(id) < 2 {
+		log.Fatalf("Failed to parse repository identity: %s\n", identifier)
+	}
+	return Repository{User: id[0], Repo: id[1]}
+}
+
+func CreateRepositoryFromRowNode(node *html.Node) (repo Repository, err error) {
+	a := node.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling
+	repo = CreateRepository(getAttribute(a, "href"))
+	stars := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+	numstars, err := strconv.Atoi(noiseOfStars.ReplaceAllString(stars.Data, ""))
+	if err != nil {
+		numstars = 0 // TODO: Does GitHub use like "1M" for "1,000,000"?
+	}
+	repo.Stars = numstars
+	return repo, nil
 }

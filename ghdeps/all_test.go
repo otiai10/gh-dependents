@@ -74,7 +74,7 @@ func TestJSONTemplate(t *testing.T) {
 	c := &Crawler{
 		ServiceURL: "http://localhost:8080",
 		Source:     Repository{User: "otiai10", Repo: "gh-dependents"},
-		Pages:      []string{},
+		Pages:      []Page{},
 		Dependents: []Repository{
 			{User: "foo", Repo: "baa"},
 		},
