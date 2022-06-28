@@ -30,6 +30,8 @@ type (
 		Pages      []Page
 
 		// Configs
+		After              string
+		PageNum            int
 		Verbose            bool
 		SleepIntervalPages int
 	}
@@ -77,10 +79,14 @@ func (c *Crawler) All() error {
 }
 
 func (c *Crawler) Crawl(page int) (err error) {
+	c.PageNum = page
 	if c.SleepIntervalPages == 0 {
 		c.SleepIntervalPages = defaultSleepIntervalPages
 	}
 	link := c.Source.URL(c.ServiceURL) + "/network/dependents"
+	if c.After != "" {
+		link += "?dependents_after=" + c.After
+	}
 	for link != "" {
 		c.sleepIfNeeded()
 		if link, err = c.Page(link); err != nil {

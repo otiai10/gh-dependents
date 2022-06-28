@@ -27,6 +27,10 @@ PAGES:	{{len .Pages}}
         "repo": "{{.Source.Repo}}",
         "url": "{{.Source.URL .ServiceURL}}"
     },
+    "query": {
+        "page":  {{if eq .PageNum 0}}null{{else}}{{.PageNum}}{{end}},
+        "after": {{if eq (len .After) 0}}null{{else}}"{{.After}}"{{end}}
+    },
     "dependents": [{{range $i, $d := .Dependents}}{{if $i}},{{end}}
         {
             "user": "{{$d.User}}",

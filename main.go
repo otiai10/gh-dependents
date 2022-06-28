@@ -13,6 +13,7 @@ var (
 	tpl        string
 	sortByStar bool
 	page       int
+	after      string
 	json       bool
 )
 
@@ -22,12 +23,14 @@ func main() {
 	flag.StringVar(&tpl, "t", "", "Output template ('' = default, 'json')")
 	flag.BoolVar(&sortByStar, "s", false, "Output with sorting by num of stars")
 	flag.IntVar(&page, "p", 0, "Pages to crawl (0 == all)")
+	flag.StringVar(&after, "a", "", "Hash of offset to be set in `dependents_after` query param")
 	flag.Parse()
 	identity := flag.Arg(0)
 	c := &ghdeps.Crawler{
 		ServiceURL: ghdeps.GitHubBaseURL,
 		Source:     ghdeps.CreateRepository(identity),
 		Verbose:    verbose,
+		After:      after,
 	}
 	if err := c.Crawl(page); err != nil {
 		log.Fatalln(err)
