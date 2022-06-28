@@ -60,14 +60,14 @@ func TestDependents_Sort(t *testing.T) {
 	})
 	server := httptest.NewServer(mux)
 	source := CreateRepository("foo/baa")
-	c := &Crawler{ServiceURL: server.URL, Source: source, Verbose: true, SleepIntervalPages: 1}
-	err := c.Crawl(2)
+	c := &Crawler{ServiceURL: server.URL, Source: source, Verbose: true, SleepIntervalPages: 1, PageCount: 2}
+	err := c.Crawl()
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(2)
 	Expect(t, len(c.Dependents)).Not().ToBe(30)
 	Expect(t, c.Dependents[0].Stars).ToBe(0)
 	sort.Sort(c.Dependents)
-	Expect(t, c.Dependents[0].Stars).ToBe(425)
+	Expect(t, c.Dependents[0].Stars).ToBe(567) // TODO: Save all test pages locally
 }
 
 func TestJSONTemplate(t *testing.T) {

@@ -31,7 +31,7 @@ type (
 
 		// Configs
 		After              string
-		PageNum            int
+		PageCount          int
 		Verbose            bool
 		SleepIntervalPages int
 	}
@@ -75,11 +75,10 @@ func NewCrawler(identity string) *Crawler {
 }
 
 func (c *Crawler) All() error {
-	return c.Crawl(0)
+	return c.Crawl()
 }
 
-func (c *Crawler) Crawl(page int) (err error) {
-	c.PageNum = page
+func (c *Crawler) Crawl() (err error) {
 	if c.SleepIntervalPages == 0 {
 		c.SleepIntervalPages = defaultSleepIntervalPages
 	}
@@ -92,7 +91,7 @@ func (c *Crawler) Crawl(page int) (err error) {
 		if link, err = c.Page(link); err != nil {
 			return err
 		}
-		if page != 0 && len(c.Pages) >= page {
+		if c.PageCount != 0 && len(c.Pages) >= c.PageCount {
 			return nil
 		}
 	}

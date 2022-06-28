@@ -28,7 +28,7 @@ PAGES:	{{len .Pages}}
         "url": "{{.Source.URL .ServiceURL}}"
     },
     "query": {
-        "page":  {{if eq .PageNum 0}}null{{else}}{{.PageNum}}{{end}},
+        "page":  {{if eq .PageCount 0}}null{{else}}{{.PageCount}}{{end}},
         "after": {{if eq (len .After) 0}}null{{else}}"{{.After}}"{{end}}
     },
     "dependents": [{{range $i, $d := .Dependents}}{{if $i}},{{end}}

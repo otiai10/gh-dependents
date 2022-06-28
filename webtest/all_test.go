@@ -17,8 +17,9 @@ func TestCrawler_All(t *testing.T) {
 
 func TestCrawler_Crawl(t *testing.T) {
 	c := ghdeps.NewCrawler("otiai10/lookpath")
-	err := c.Crawl(1)
+	c.PageCount = 1
+	err := c.Crawl()
 	Expect(t, err).ToBe(nil)
 	Expect(t, len(c.Pages)).ToBe(1)
-	Expect(t, len(c.Dependents)).ToBe(30)
+	Expect(t, len(c.Dependents)).ToBe(29)
 }

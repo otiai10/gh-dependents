@@ -31,8 +31,9 @@ func main() {
 		Source:     ghdeps.CreateRepository(identity),
 		Verbose:    verbose,
 		After:      after,
+		PageCount:  page,
 	}
-	if err := c.Crawl(page); err != nil {
+	if err := c.Crawl(); err != nil {
 		log.Fatalln(err)
 	}
 	opt := &ghdeps.PrintOption{SortByStar: sortByStar}
