@@ -65,25 +65,29 @@ func (c *Crawler) Crawl(page int) (err error) {
 	}
 	link := c.Source.URL(c.ServiceURL) + "/network/dependents"
 	for link != "" {
+		c.sleepIfNeeded()
 		if link, err = c.Page(link); err != nil {
 			return err
 		}
 		if page != 0 && len(c.Pages) >= page {
 			return nil
 		}
-		if len(c.Pages)%c.SleepIntervalPages == 0 {
-			rand.Seed(time.Now().Unix())
-			secs := rand.Intn(24)
-			if len(c.Pages)%(c.SleepIntervalPages*5) == 0 {
-				secs = secs * 5
-			}
-			if c.Verbose {
-				fmt.Fprintf(os.Stderr, "Sleeping %d seconds to avoid HTTP 429.\n", secs)
-			}
-			time.Sleep(time.Duration(secs) * time.Second)
-		}
 	}
 	return nil
+}
+
+func (c *Crawler) sleepIfNeeded() {
+	if len(c.Pages) != 0 && len(c.Pages)%c.SleepIntervalPages == 0 {
+		rand.Seed(time.Now().Unix())
+		secs := rand.Intn(12)
+		if len(c.Pages)%(c.SleepIntervalPages*5) == 0 {
+			secs = secs * 5
+		}
+		if c.Verbose {
+			fmt.Fprintf(os.Stderr, "Sleeping %d seconds to avoid HTTP 429.\n", secs)
+		}
+		time.Sleep(time.Duration(secs) * time.Second)
+	}
 }
 
 func (c *Crawler) Page(link string) (string, error) {
