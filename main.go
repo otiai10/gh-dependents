@@ -9,18 +9,18 @@ import (
 )
 
 var (
-	verbose  bool
-	tpl      string
-	sortstar bool
-	page     int
-	json     bool
+	verbose    bool
+	tpl        string
+	sortByStar bool
+	page       int
+	json       bool
 )
 
 func main() {
 	flag.BoolVar(&verbose, "v", false, "Show verbose log")
 	flag.BoolVar(&json, "json", false, "Output in JSON format (Alias of -t=json)")
 	flag.StringVar(&tpl, "t", "", "Output template ('' = default, 'json')")
-	flag.BoolVar(&sortstar, "s", false, "Output with sorting by num of stars")
+	flag.BoolVar(&sortByStar, "s", false, "Output with sorting by num of stars")
 	flag.IntVar(&page, "p", 0, "Pages to crawl (0 == all)")
 	flag.Parse()
 	identity := flag.Arg(0)
@@ -32,7 +32,7 @@ func main() {
 	if err := c.Crawl(page); err != nil {
 		log.Fatalln(err)
 	}
-	opt := &ghdeps.PrintOption{SortByStar: sortstar}
+	opt := &ghdeps.PrintOption{SortByStar: sortByStar}
 	switch {
 	case tpl == "json", json:
 		opt.Template = ghdeps.JSONTemplate
