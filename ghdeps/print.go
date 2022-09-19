@@ -10,7 +10,7 @@ type (
 )
 
 var (
-	DefaultTemplate = template.Must(template.New("default").Parse(
+	PrettyTemplate = template.Must(template.New("pretty").Parse(
 		`--------------------------------------
 Dependents of {{.Source.User}}/{{.Source.Repo}}
 TOTAL:	{{len .Dependents}}
@@ -22,29 +22,29 @@ PAGES:	{{len .Pages}}
 
 	JSONTemplate = template.Must(template.New("json").Parse(
 		`{
-    "source": {
-        "user": "{{.Source.User}}",
-        "repo": "{{.Source.Repo}}",
-        "url": "{{.Source.URL .ServiceURL}}"
-    },
-    "query": {
-        "page":  {{if eq .PageCount 0}}null{{else}}{{.PageCount}}{{end}},
-        "after": {{if eq (len .After) 0}}null{{else}}"{{.After}}"{{end}}
-    },
-    "dependents": [{{range $i, $d := .Dependents}}{{if $i}},{{end}}
-        {
-            "user": "{{$d.User}}",
-            "repo": "{{$d.Repo}}",
-            "url": "{{$d.URL $.ServiceURL}}",
-            "stars": {{$d.Stars}}
-        }{{end}}
-    ],
-    "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
-        {
-            "url":  "{{$p.URL}}"{{if ne (len $p.Next) 0}},
-            "next": "{{$p.Next}}"{{end}}
-        }{{end}}
-    ]
+  "source": {
+    "user": "{{.Source.User}}",
+    "repo": "{{.Source.Repo}}",
+    "url": "{{.Source.URL .ServiceURL}}"
+  },
+  "query": {
+    "page":  {{if eq .PageCount 0}}null{{else}}{{.PageCount}}{{end}},
+    "after": {{if eq (len .After) 0}}null{{else}}"{{.After}}"{{end}}
+  },
+  "dependents": [{{range $i, $d := .Dependents}}{{if $i}},{{end}}
+    {
+      "user": "{{$d.User}}",
+      "repo": "{{$d.Repo}}",
+      "url": "{{$d.URL $.ServiceURL}}",
+      "stars": {{$d.Stars}}
+    }{{end}}
+  ],
+  "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
+    {
+      "url":  "{{$p.URL}}"{{if ne (len $p.Next) 0}},
+      "next": "{{$p.Next}}"{{end}}
+    }{{end}}
+  ]
 }`,
 	))
 )
@@ -52,11 +52,11 @@ PAGES:	{{len .Pages}}
 func (opt *PrintOption) ensure() *PrintOption {
 	if opt == nil {
 		return &PrintOption{
-			Template: DefaultTemplate,
+			Template: PrettyTemplate,
 		}
 	}
 	if opt.Template == nil {
-		opt.Template = DefaultTemplate
+		opt.Template = PrettyTemplate
 	}
 	return opt
 }

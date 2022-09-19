@@ -15,12 +15,14 @@ var (
 	page       int
 	after      string
 	json       bool
+	pretty     bool
 )
 
 func main() {
 	flag.BoolVar(&verbose, "v", false, "Show verbose log")
+	flag.BoolVar(&pretty, "pretty", false, "Output in pretty format (Alias of -t=pretty)")
 	flag.BoolVar(&json, "json", false, "Output in JSON format (Alias of -t=json)")
-	flag.StringVar(&tpl, "t", "", "Output template ('' = default, 'json')")
+	flag.StringVar(&tpl, "t", "", "Output template ('json' = default, 'pretty')")
 	flag.BoolVar(&sortByStar, "s", false, "Output with sorting by num of stars")
 	flag.IntVar(&page, "p", 0, "Pages to crawl (0 == all)")
 	flag.StringVar(&after, "a", "", "Hash of offset to be set in `dependents_after` query param")
@@ -38,7 +40,11 @@ func main() {
 	}
 	opt := &ghdeps.PrintOption{SortByStar: sortByStar}
 	switch {
+	case tpl == "pretty", pretty:
+		opt.Template = ghdeps.PrettyTemplate
 	case tpl == "json", json:
+		opt.Template = ghdeps.JSONTemplate
+	default:
 		opt.Template = ghdeps.JSONTemplate
 	}
 	if err := c.Print(os.Stdout, opt); err != nil {
