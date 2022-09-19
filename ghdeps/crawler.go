@@ -42,6 +42,7 @@ type (
 		User  string
 		Repo  string
 		Stars int
+		Forks int
 	}
 
 	Page struct {
@@ -202,11 +203,21 @@ func CreateRepository(identifier string) Repository {
 func CreateRepositoryFromRowNode(node *html.Node) (repo Repository, err error) {
 	a := node.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling
 	repo = CreateRepository(getAttribute(a, "href"))
-	stars := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+	container := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling
+	stars := container.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+
 	numstars, err := strconv.Atoi(noiseOfStars.ReplaceAllString(stars.Data, ""))
 	if err != nil {
 		numstars = 0 // TODO: Does GitHub use like "1M" for "1,000,000"?
 	}
 	repo.Stars = numstars
+
+	forks := container.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling
+	numforks, err := strconv.Atoi(noiseOfStars.ReplaceAllString(forks.Data, ""))
+	if err != nil {
+		numforks = 0
+	}
+	repo.Forks = numforks
+
 	return repo, nil
 }

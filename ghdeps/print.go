@@ -16,7 +16,7 @@ Dependents of {{.Source.User}}/{{.Source.Repo}}
 TOTAL:	{{len .Dependents}}
 PAGES:	{{len .Pages}}
 --------------------------------------
-{{range .Dependents}}⭐️{{.Stars}}	{{.User}}/{{.Repo}}
+{{range .Dependents}}⭐️ {{.Stars}}	🌵 {{.Forks}}    {{.User}}/{{.Repo}}
 {{end}}`,
 	))
 
@@ -36,7 +36,8 @@ PAGES:	{{len .Pages}}
       "user": "{{$d.User}}",
       "repo": "{{$d.Repo}}",
       "url": "{{$d.URL $.ServiceURL}}",
-      "stars": {{$d.Stars}}
+      "stars": {{$d.Stars}},
+      "forks": {{$d.Forks}}
     }{{end}}
   ],
   "pages": [{{range $i, $p := .Pages}}{{if $i}},{{end}}
