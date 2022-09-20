@@ -182,8 +182,8 @@ func (c *Crawler) Walk(node *html.Node) (string, error) {
 
 func (c *Crawler) Print(out io.Writer, opt *PrintOption) error {
 	opt = opt.ensure()
-	if opt.SortByStar {
-		sort.Sort(c.Dependents)
+	if opt.Sort != nil {
+		sort.Slice(c.Dependents, opt.Sort(c.Dependents))
 	}
 	return opt.Template.Execute(out, c)
 }

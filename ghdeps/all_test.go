@@ -80,7 +80,7 @@ func TestJSONTemplate(t *testing.T) {
 		},
 	}
 	buf := bytes.NewBuffer(nil)
-	err := c.Print(buf, &PrintOption{Template: JSONTemplate, SortByStar: true})
+	err := c.Print(buf, &PrintOption{Template: JSONTemplate, Sort: SortByStar})
 	Expect(t, err).ToBe(nil)
 	out := map[string]interface{}{}
 	err = json.NewDecoder(buf).Decode(&out)

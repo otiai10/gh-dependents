@@ -4,8 +4,23 @@ import "html/template"
 
 type (
 	PrintOption struct {
-		Template   *template.Template
-		SortByStar bool
+		Template *template.Template
+		Sort     SortProvider
+	}
+
+	SortProvider func(deps Dependents) func(int, int) bool
+)
+
+var (
+	SortByStar SortProvider = func(deps Dependents) func(int, int) bool {
+		return func(i, j int) bool {
+			return deps[i].Stars > deps[j].Stars
+		}
+	}
+	SortByFork SortProvider = func(deps Dependents) func(int, int) bool {
+		return func(i, j int) bool {
+			return deps[i].Forks > deps[j].Forks
+		}
 	}
 )
 
@@ -59,5 +74,13 @@ func (opt *PrintOption) ensure() *PrintOption {
 	if opt.Template == nil {
 		opt.Template = PrettyTemplate
 	}
+
+	opt.Sort = func(deps Dependents) func(int, int) bool {
+		return func(i, j int) bool {
+			// return deps[i].Stars > deps[j].Stars
+			return deps[i].Forks > deps[j].Forks
+		}
+	}
+
 	return opt
 }
