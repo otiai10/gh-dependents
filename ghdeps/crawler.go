@@ -42,6 +42,7 @@ type (
 		User  string
 		Repo  string
 		Stars int
+		Forks int
 	}
 
 	Page struct {
@@ -54,18 +55,6 @@ type (
 var (
 	noiseOfStars = regexp.MustCompile("[ \\n,]")
 )
-
-func (deps Dependents) Len() int {
-	return len(deps)
-}
-
-func (deps Dependents) Less(i, j int) bool {
-	return deps[i].Stars > deps[j].Stars
-}
-
-func (deps Dependents) Swap(i, j int) {
-	deps[i], deps[j] = deps[j], deps[i]
-}
 
 func NewCrawler(identity string) *Crawler {
 	return &Crawler{
@@ -128,7 +117,13 @@ func (c *Crawler) Page(link string) (next string, err error) {
 	if c.Verbose {
 		fmt.Fprintf(os.Stderr, "\t= %d\n", len(c.Dependents))
 	}
-	u, _ := url.Parse(next)
+	u, err := url.Parse(next)
+	if err != nil {
+		return "", err
+	}
+	if !u.IsAbs() && next != "" {
+		next = c.ServiceURL + next
+	}
 	c.Pages = append(c.Pages, Page{URL: link, Next: u.Query().Get("dependents_after")})
 	return next, err
 }
@@ -181,8 +176,8 @@ func (c *Crawler) Walk(node *html.Node) (string, error) {
 
 func (c *Crawler) Print(out io.Writer, opt *PrintOption) error {
 	opt = opt.ensure()
-	if opt.SortByStar {
-		sort.Sort(c.Dependents)
+	if opt.Sort != nil {
+		sort.Slice(c.Dependents, opt.Sort(c.Dependents))
 	}
 	return opt.Template.Execute(out, c)
 }
@@ -202,11 +197,21 @@ func CreateRepository(identifier string) Repository {
 func CreateRepositoryFromRowNode(node *html.Node) (repo Repository, err error) {
 	a := node.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling.NextSibling
 	repo = CreateRepository(getAttribute(a, "href"))
-	stars := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+	container := node.FirstChild.NextSibling.NextSibling.NextSibling.NextSibling.NextSibling
+	stars := container.FirstChild.NextSibling.FirstChild.NextSibling.NextSibling
+
 	numstars, err := strconv.Atoi(noiseOfStars.ReplaceAllString(stars.Data, ""))
 	if err != nil {
 		numstars = 0 // TODO: Does GitHub use like "1M" for "1,000,000"?
 	}
 	repo.Stars = numstars
+
+	forks := container.FirstChild.NextSibling.NextSibling.NextSibling.FirstChild.NextSibling.NextSibling
+	numforks, err := strconv.Atoi(noiseOfStars.ReplaceAllString(forks.Data, ""))
+	if err != nil {
+		numforks = 0
+	}
+	repo.Forks = numforks
+
 	return repo, nil
 }
