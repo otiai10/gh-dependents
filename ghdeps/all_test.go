@@ -3,6 +3,7 @@ package ghdeps
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -39,7 +40,8 @@ func TestCrawler_Page(t *testing.T) {
 
 func TestCrawler_All(t *testing.T) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/foo/baa/network/dependents", func(w http.ResponseWriter, req *http.Request) {
+	// mux.HandleFunc("/foo/baa/network/dependents", func(w http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		f, _ := os.Open("./testdata/no-next.html")
 		io.Copy(w, f)
 	})
@@ -55,19 +57,32 @@ func TestCrawler_All(t *testing.T) {
 func TestDependents_Sort(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/foo/baa/network/dependents", func(w http.ResponseWriter, req *http.Request) {
-		f, _ := os.Open("./testdata/sortable.html")
-		io.Copy(w, f)
+		if a := req.URL.Query().Get("dependents_after"); a == "" {
+			f, _ := os.Open("./testdata/page_0.html")
+			io.Copy(w, f)
+		} else {
+			f, _ := os.Open(fmt.Sprintf("./testdata/%s.html", a))
+			io.Copy(w, f)
+		}
 	})
 	server := httptest.NewServer(mux)
 	source := CreateRepository("foo/baa")
-	c := &Crawler{ServiceURL: server.URL, Source: source, Verbose: true, SleepIntervalPages: 1, PageCount: 2}
+	c := &Crawler{
+		// Verbose:            true,
+		ServiceURL:         server.URL,
+		Source:             source,
+		SleepIntervalPages: 4,
+		PageCount:          4,
+	}
 	err := c.Crawl()
 	Expect(t, err).ToBe(nil)
-	Expect(t, len(c.Pages)).ToBe(2)
+	Expect(t, len(c.Pages)).ToBe(4)
 	Expect(t, len(c.Dependents)).Not().ToBe(30)
 	Expect(t, c.Dependents[0].Stars).ToBe(0)
-	sort.Sort(c.Dependents)
-	Expect(t, c.Dependents[0].Stars).ToBe(567) // TODO: Save all test pages locally
+	sort.Slice(c.Dependents, SortByStar(c.Dependents))
+	Expect(t, c.Dependents[0].Stars).ToBe(4115)
+	sort.Slice(c.Dependents, SortByFork(c.Dependents))
+	Expect(t, c.Dependents[0].Forks).ToBe(481)
 }
 
 func TestJSONTemplate(t *testing.T) {
