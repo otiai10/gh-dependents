@@ -31,7 +31,7 @@ Dependents of {{.Source.User}}/{{.Source.Repo}}
 TOTAL:	{{len .Dependents}}
 PAGES:	{{len .Pages}}
 --------------------------------------
-{{range .Dependents}}⭐️ {{.Stars}}	🌵 {{.Forks}}    {{.User}}/{{.Repo}}
+{{range .Dependents}}⭐️ {{.Stars}}	🌵 {{.Forks}}	{{.User}}/{{.Repo}}
 {{end}}`,
 	))
 
@@ -73,13 +73,6 @@ func (opt *PrintOption) ensure() *PrintOption {
 	}
 	if opt.Template == nil {
 		opt.Template = PrettyTemplate
-	}
-
-	opt.Sort = func(deps Dependents) func(int, int) bool {
-		return func(i, j int) bool {
-			// return deps[i].Stars > deps[j].Stars
-			return deps[i].Forks > deps[j].Forks
-		}
 	}
 
 	return opt
