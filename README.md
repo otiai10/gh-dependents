@@ -26,9 +26,13 @@ gh dependents otiai10/lookpath
 # Advanced Usage
 
 ```sh
-gh dependents -v -t=json otiai10/lookpath
-# -v to show verbose log
-# -t=json to output in JSON format template
+gh dependents \
+    -v \                     # Show verbose log
+    -page=2 \                # Only crawl 2 pages
+    -after=MjM1ODQzNDY1NzY \ # Only crawl after specific hash
+    -sort=fork \             # Sort output by num of forks
+    -pretty \                # Output in pretty format
+    otiai10/lookpath
 
 # For more information, hit
 gh dependents -h
