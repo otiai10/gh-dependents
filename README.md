@@ -42,6 +42,27 @@ gh dependents -h
 
 - This command just crawls `/network/dependents` page of your repository.
 
+# Usage as a Go library
+
+```go
+package main
+
+import (
+    "github.com/otiai10/gh-dependents/ghdeps"
+)
+
+func main() {
+    crawler := ghdeps.NewCrawler("otiai10/lookpath")
+	err := crawler.All()
+    if err != nil {
+        log.Fatalln(err)
+    }
+    fmt.Printf("%+v\n", crawler.Dependents)
+}
+```
+
+For more information, check https://pkg.go.dev/github.com/otiai10/gh-dependents/ghdeps
+
 # Issues and Feature Request
 
 - https://github.com/otiai10/gh-dependents/issues
